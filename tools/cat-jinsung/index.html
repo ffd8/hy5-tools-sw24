@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>recoding</title>
+	<meta charset="utf-8">
+	<!-- Compiled w/ P5LIVE, http://github.com/ffd8/p5live -->
+	<style type="text/css">
+		body{
+			margin:0;
+			overflow:hidden;
+		}
+		canvas{
+			position:fixed;
+			top:0;
+			left:0;
+			z-index:-1;
+			width:100vw;
+			height:100vh;
+			margin:0;
+		}
+	</style>
+	<script type="text/javascript">
+		// eco-mode = only render if window focused
+		window.onblur = function () {
+			noLoop();
+		};
+		window.onfocus = function () {
+			loop();
+		};
+	</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/processing/p5.js-sound/lib/p5.sound.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/hydra-synth"></script>
+</head>
+<body style="background: rgb(0, 0, 0);">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js"></script>
+
+<script type="text/javascript">
+//recoding
+
+/* CUSTOM FUNCTIONS FOR P5LIVE */
+// keep fullscreen if window resized
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+}
+
+// custom ease function
+function ease(iVal, oVal, eVal){
+	return oVal += (iVal - oVal) * eVal;
+}
+
+// processing compatibility
+function println(msg){
+	print(msg);
+}
+
+
+/*
+	_HY5_p5_hydra
+	pass p5 with type into hydra
+	cc teddavis.org 2024
+*/
+
+var credits = { 
+	names : [ 
+		'Jinsung.Kim' // link to website if you have it <a href="URL" target="_blank">first.lastname</a> 
+	] 
+	,class : 'IDCE SW24' 
+	,description : `4 posions and meow of a Cat` 
+} 
+
+let libs = ['https://unpkg.com/hydra-synth', 'includes/libs/hydra-synth.js', 'https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js', 'includes/libs/hy5.js']
+
+var myScale=1
+
+//GUI
+
+var recording = false
+ 
+
+// sandbox - start
+H.pixelDensity(1.5) // 2x = retina, set <= 1 if laggy
+
+s0.initP5() // send p5 to hydra
+P5.toggle(0) // hide p5
+
+src(s0)
+.add(src(o0).scale(1.03), .9)
+.modulateScale(noize(1000), .1)
+.scale(()=>myScale)
+.out()
+// sandbox - end
+
+var objs = []
+var sounds = []
+
+function preload() {
+	//obj = loadModel('/data/3d/M_cat_1.stl')
+	objs.push(loadModel('./data/3d/M_cat_1.stl'))
+	objs.push(loadModel('./data/3d/M_cat_2.stl'))
+	objs.push(loadModel('./data/3d/M_cat_4.stl'))
+	objs.push(loadModel('./data/3d/M_cat_3.stl'))
+	objs.push(loadModel('./data/3d/M_cat_4.stl'))
+	objs.push(loadModel('./data/3d/M_cat_2.stl'))
+	objs.push(loadModel('./data/3d/M_cat_1.stl'))
+
+
+
+	//sound = loadSound('/data/sound/mixkit-little-cat-pain-meow-87.wav')
+	sounds.push(loadSound('./data/sound/mixkit-sweet-kitty-meow-93.wav'))
+	sounds.push(loadSound('./data/sound/mixkit-angry-cartoon-kitty-meow-94.wav'))
+	sounds.push(loadSound('./data/sound/mixkit-little-cat-pain-meow-87.wav'))
+	sounds.push(loadSound('./data/sound/mixkit-big-wild-cat-scary-roar-88.wav'))
+	sounds.push(loadSound('./data/sound/mixkit-angry-cartoon-kitty-meow-94.wav'))
+	sounds.push(loadSound('./data/sound/mixkit-little-cat-pain-meow-87.wav'))
+	sounds.push(loadSound('./data/sound/mixkit-sweet-kitty-meow-93.wav'))
+
+
+}
+
+function setup() {
+	createCanvas(windowWidth, windowHeight, WEBGL)
+	noFill()
+
+myGUI = createDiv('').position(width/2, 20)
+    
+    recButton = createButton('🟢 START RECORDING').parent(myGUI).mouseClicked(function(){
+        if(!recording){
+            recButton.html('🛑 STOP RECORDING')
+            vidRecorder.start()
+            recording = true
+        }else{
+            recButton.html('🟢 START RECORDING')
+            vidRecorder.stop()
+            recording = false
+        }
+    })
+	createElement('br').parent(myGUI)
+	objsFrame = createSlider(0, objs.length-1, 0).parent(myGUI).input(function(){
+		myScale = 1.2
+		//sounds.play(sounds[soundsFrame.value()])
+		sounds[this.value()].play()
+	})
+
+}
+
+
+function draw() {
+	myScale = ease(1,myScale,.07)
+	clear()
+	blendMode(DIFFERENCE)
+	background(0)
+	orbitControl(5)
+	rotateX(90)
+	rotateZ(radians(-frameCount / .7))
+	stroke(100, 255, 100)
+	scale(4)
+	translate(0,0,-10);
+	//model(objs[floor(frameCount*.1%objs.length)])
+	model(objs[objsFrame.value()])
+	sphere(width)
+}
+
+</script>
+
+</body>
+</html>

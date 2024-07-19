@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>hy5_suit_of_wands_with_audio</title>
+	<meta charset="utf-8">
+	<!-- Compiled w/ P5LIVE, http://github.com/ffd8/p5live -->
+	<style type="text/css">
+		body{
+			margin:0;
+			overflow:hidden;
+		}
+		canvas{
+			position:fixed;
+			top:0;
+			left:0;
+			z-index:-1;
+			width:100vw;
+			height:100vh;
+			margin:0;
+		}
+	</style>
+	<script type="text/javascript">
+		// eco-mode = only render if window focused
+		window.onblur = function () {
+			noLoop();
+		};
+		window.onfocus = function () {
+			loop();
+		};
+	</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/processing/p5.js-sound/lib/p5.sound.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/hydra-synth"></script>
+
+</head>
+<body style="background: rgb(255, 255, 255);">
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js"></script>
+
+<script type="text/javascript">
+//hy5_suit_of_wands_with_audio
+
+/* CUSTOM FUNCTIONS FOR P5LIVE */
+// keep fullscreen if window resized
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+}
+
+// custom ease function
+function ease(iVal, oVal, eVal){
+	return oVal += (iVal - oVal) * eVal;
+}
+
+// processing compatibility
+function println(msg){
+	print(msg);
+}
+
+
+var credits = { 
+	names : [ 
+		'natascha.nueesch' // link to website if you have it <a href="URL" target="_blank">first.lastname</a> 
+	] 
+	,class : 'IDCE SW24' 
+	,description : `play around with wands, order the layers and let them dance` 
+} 
+
+let layer1
+let layers = []
+let nummberOfLayers
+let layerHeight
+let moveNummberSmall
+let colorNummber
+let moveNummber
+
+let libs = ['https://unpkg.com/hydra-synth', 'includes/libs/hydra-synth.js', 'https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js', 'includes/libs/hy5.js']
+
+// sandbox
+
+
+
+//layer1 background
+osc(0, .9, 10).add(gradient(.1)).out(o0)
+//diamond bars
+osc(() => sliderHydralayer4size.value(), .01, () => colorNummber).rotate(3, () => moveNummber).kaleid(4).luma(.2, 0.1).repeat().out(o2)
+//vertical bars
+osc(() => sliderHydralayer3size.value(), () => moveNummberSmall, () => colorNummber).layer(osc(() => sliderHydralayer3size.value(), () => moveNummberSmall, () => colorNummber).rotate(.1).luma()).luma().out(o3)
+//black noise
+noise()
+	.modulate(noize(10, 0.1))
+	.out(o1)
+
+
+render()
+H.toggle(0) //make hydra (un)visible
+P5.toggle(1) //make p5 (un)visible
+
+// s0.initP5()
+// sandbox
+
+function setup() {
+	/*
+	layer1:gradient background
+	layer2:black noise
+	layer3:stange horizontal
+	layer4:stange diamond
+	*/
+
+	createCanvas(windowWidth, windowHeight, WEBGL)
+	// create generic div (html container) 
+	guiHolder = createDiv()
+		.class('guiHolder') // add class for styling via CSS 
+	createDiv('suit of wands').parent(guiHolder).class('h1').draggable(guiHolder)
+
+
+	//slider
+	createDiv('color background').parent(guiHolder).class('h2')
+	createDiv('height').parent(guiHolder).class('label')
+	sliderLayer1Heiht = createSlider(10, height * 2, height * 2, 1).parent(guiHolder).class('slider') // min, max, default, stepSize 
+	createDiv('position').parent(guiHolder).class('label')
+	sliderLayer1position = createSlider(-height, height, 0, 1).parent(guiHolder).class('slider') // min, max, default, stepSize 
+
+	createDiv('black background').parent(guiHolder).class('h2')
+	createDiv('height').parent(guiHolder).class('label')
+	sliderLayer2Heiht = createSlider(0, height * 2, 100, 1).parent(guiHolder).class('slider');
+	createDiv('position').parent(guiHolder).class('label')
+	sliderLayer2position = createSlider(-height, height, 150, 1).parent(guiHolder).class('slider') // min, max, default, stepSize 
+
+	createDiv('vertical bars').parent(guiHolder).class('h2')
+	createDiv('height').parent(guiHolder).class('label')
+	sliderLayer3Heiht = createSlider(10, height * 2, height * 2, 1).parent(guiHolder).class('slider');
+	createDiv('position').parent(guiHolder).class('label')
+	sliderLayer3position = createSlider(-height, height, 0, 1).parent(guiHolder).class('slider') // min, max, default, stepSize 
+	createDiv('bar size').parent(guiHolder).class('label')
+	sliderHydralayer3size = createSlider(0, 2000, 300, 1).parent(guiHolder).class('slider'); // min, max, default, stepSize 
+
+	createDiv('diamond bars').parent(guiHolder).class('h2')
+	createDiv('height').parent(guiHolder).class('label')
+	sliderLayer4Heiht = createSlider(10, height * 2, 200, 1).parent(guiHolder).class('slider');
+	createDiv('position').parent(guiHolder).class('label')
+	sliderLayer4position = createSlider(-height, height, 0, 1).parent(guiHolder).class('slider') // min, max, default, stepSize 
+	createDiv('bar size').parent(guiHolder).class('label')
+	sliderHydralayer4size = createSlider(0, 1000, 60, 1).parent(guiHolder).class('slider'); // min, max, default, stepSize 
+
+	createDiv('-------------------------').parent(guiHolder).class('dividor')
+	checkboxColoring = createCheckbox('🌈', false).parent(guiHolder).class('regular-checkbox')
+	checkboxMove = createCheckbox('🪩', false).parent(guiHolder).class('regular-checkbox')
+
+
+
+	createElement('style', ` 
+  *{ 
+    outline: none; 
+    box-sizing: border-box; 
+  }   
+    .guiHolder{ 
+    background-color: white;
+  
+      position: fixed; 
+          height: 98%;
+    width: 10em;
+      right: 50px; 
+      top: .5rem; 
+      border: 2px solid #000000; 
+      border-radius: 10px; 
+      padding: 10px; 
+    } 
+    .checkboxHolder{
+    	display: block
+    }
+    .h1{
+    text-transform: uppercase;
+    		padding-top: .5rem;
+    	letter-spacing: .2rem;
+    	font-weight: 700;
+    		font-size:1.5em;
+    	padding:0px; 
+    	padding-bottom:  .5rem;
+    	 text-align: center
+    }
+    .h2{
+    	padding-top: .5rem;
+    	font-weight: 700;
+    	padding-left:5px; 
+    	 text-decoration: underline
+    }
+    .dividor{
+    padding-top: 0	
+    }
+    .label{ 
+      color:#00000; 
+      font-family:sans-serif; 
+      font-size:10pt; 
+      //padding:5px; 
+    } 
+    .slider{ 
+       -webkit-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 1rem; /* Specified height */
+  background: #d3d3d3; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+  border-radius: 10px; 
+    } 
+    .slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 1rem; /* Set a specific slider handle width */
+  height: 1rem; /* Slider handle height */
+  background: #000000; 
+  cursor: pointer; /* Cursor on hover */
+  border-radius: 10px; 
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #000000; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #000000;
+  border-radius: 10px; 
+}
+
+.input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  font-size: 3rem;
+  padding: 0.1rem;
+  border: 0.25rem solid green;
+  border-radius: 2rem;
+}
+input[type="checkbox"]::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+   transform: scale(0);
+  background-color: #000000;
+}
+input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+input[type="checkbox"]:hover {
+  color: black;
+}
+    `)
+
+
+
+	layer1 = createGraphics(width, sliderLayer1Heiht.value()) //can be the size you want
+	layer2 = createGraphics(width, sliderLayer2Heiht.value())
+	layer3 = createGraphics(width, sliderLayer3Heiht.value())
+	layer4 = createGraphics(width, sliderLayer4Heiht.value())
+
+	s1.initP5(layer1)
+	s2.initP5(layer2)
+	s0.initP5(layer3)
+	s3.initP5(layer4)
+	H.render()
+
+	setupAudio()
+}
+
+function draw() {
+	/* audio vars: amp, ampEase, fft, waveform */
+	updateAudio()
+	background(255)
+
+	//orbitControl()
+	H.render()
+
+	if(checkboxColoring.checked()) {
+		colorNummber = 1
+	} else {
+		colorNummber = 0
+	}
+
+	if(checkboxMove.checked()) {
+		moveNummber = (amp/3000)*100
+		moveNummberSmall = (amp/5000)*100
+	} else {
+		moveNummber = 0
+		moveNummberSmall = 0
+	}
+	//frist Layer Background
+	push()
+	noStroke()
+	texture(h0)
+	translate(0, sliderLayer1position.value())
+	plane(width, sliderLayer1Heiht.value())
+	pop()
+
+	//second Layer black noise
+	push()
+	noStroke()
+	texture(h1)
+	translate(0, sliderLayer2position.value())
+	plane(width, sliderLayer2Heiht.value())
+	pop()
+
+
+
+
+	//3Layer vertical bars
+	push()
+	noStroke()
+	texture(h3)
+	translate(0, sliderLayer3position.value(), 10)
+	plane(width, sliderLayer3Heiht.value())
+	pop()
+
+
+	//3Layer bigger
+	push()
+	noStroke()
+	texture(h2)
+	translate(0, sliderLayer4position.value(), 10)
+	plane(width, sliderLayer4Heiht.value())
+	pop()
+
+
+}
+
+/* AUDIO INIT */
+let mic, fftRaw, fft = [],
+	waveform = [],
+	amp = 0.0,
+	ampStereo = {
+		l: 0.0,
+		r: 0.0
+	},
+	ampEase = 0.0,
+	numBins = 512,
+	bands = 12;
+
+function setupAudio() {
+	userStartAudio();
+	mic = new p5.AudioIn();
+	mic.start();
+	fftRaw = new p5.FFT(0.75, numBins);
+	fftRaw.setInput(mic);
+}
+
+function updateAudio() {
+	fftRaw.analyze();
+	amp = mic.getLevel() * 1000; // average mixed amplitude
+	ampStereo.l = mic.amplitude.getLevel(0) * 500; // average left amplitude
+	ampStereo.r = mic.amplitude.getLevel(1) * 500; // average right amplitude
+	ampEase = ease(amp, ampEase, 0.075); // smooth 'amp'
+	waveform = fftRaw.waveform(); // array (-1, 1)
+	fft = fftRaw.logAverages(fftRaw.getOctaveBands(bands)); // array (0, 255)
+}
+</script>
+
+</body>
+</html>

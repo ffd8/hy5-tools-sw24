@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Worm Hole Wrangler</title>
+	<meta charset="utf-8">
+	<!-- Compiled w/ P5LIVE, http://github.com/ffd8/p5live -->
+	<style type="text/css">
+		body{
+			margin:0;
+			overflow:hidden;
+		}
+		canvas{
+			position:fixed;
+			top:0;
+			left:0;
+			z-index:-1;
+			width:100vw;
+			height:100vh;
+			margin:0;
+		}
+	</style>
+	<script type="text/javascript">
+		// eco-mode = only render if window focused
+		window.onblur = function () {
+			noLoop();
+		};
+		window.onfocus = function () {
+			loop();
+		};
+	</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/processing/p5.js-sound/lib/p5.sound.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/hydra-synth"></script>
+<script type="text/javascript" src="includes/libs/hydra-synth.js"></script>
+<script type="text/javascript" src="includes/libs/hy5.js"></script>
+</head>
+<body style="background: rgb(0, 0, 0);">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js"></script>
+<script type="text/javascript">
+//Worm Hole Wrangler
+
+/* CUSTOM FUNCTIONS FOR P5LIVE */
+// keep fullscreen if window resized
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+}
+
+// custom ease function
+function ease(iVal, oVal, eVal){
+	return oVal += (iVal - oVal) * eVal;
+}
+
+// processing compatibility
+function println(msg){
+	print(msg);
+}
+
+
+var credits = { 
+	names : [ 
+		'regula.sanchez'
+	] 
+	,class : 'IDCE SW24' 
+	,description : `a journey down the worm hole of creative - or maybe accidental - coding` 
+} 
+
+let libs = ['https://unpkg.com/hydra-synth', 'includes/libs/hydra-synth.js', 'https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js', 'includes/libs/hy5.js']
+
+H.pixelDensity(2) // 2x = retina, set <= 1 if laggy
+
+// sandbox - start
+s0.initP5()
+
+osc(() => sliderOsc.value(), .05, () => sliderColor.value()) // create slider 1st 5, 20 ,10 and last value 0.3, 5.5, 0.3
+	.kaleid(() => sliderKaleid.value()) // create slider kaleid 1, 6, 3
+	.modulateScale(src(o0)
+		.scale(1.5)
+		.repeat(() => sliderRepeat.value(), () => sliderRepeat.value()) // create slider for repeat
+		.rotate(0, () => sliderRotate.value() / 10) // create slider for rotate -20 - 3
+		.modulate(src(o0).scale(() => sliderScale.value())) // create slider for scale 0 - 30
+	)
+	.out(o0)
+
+// sandbox - end
+
+
+function setup() {
+	createCanvas(windowWidth, windowHeight, WEBGL)
+	angleMode(DEGREES)
+	noStroke()
+	setupAudio()
+
+	guiHolder = createDiv('').class('guiHolder')
+	createDiv('Worm Hole Wrangler').parent(guiHolder).class('guiBar').draggable(guiHolder)
+	createDiv('').parent(guiHolder).class('guiLabel')
+	sliderSpeed = createSlider(1500, 7000, 3000).parent(guiHolder).class('guiSlider') // min, max, default, stepSize 
+	sliderOsc = createSlider(5, 20, 10).parent(guiHolder).class('guiSlider')
+	sliderKaleid = createSlider(1, 6, 3).parent(guiHolder).class('guiSlider')
+	// sliderRepeat = createSlider(3, 40, 20).parent(guiHolder).class('guiSlider')
+	sliderRotate = createSlider(-3, 3, .2).parent(guiHolder).class('guiSlider')
+	sliderScale = createSlider(0, 30, 4).parent(guiHolder).class('guiSlider')
+	sliderSides = createSlider(2, 20, 10).parent(guiHolder).class('guiSlider')
+	sliderColor = createSlider(0.3, 5.5, .3).parent(guiHolder).class('guiSlider')
+
+	createDiv('').parent(guiHolder).class('guiLabel')
+	spaceDonut = createCheckbox('', false).parent(guiHolder)
+	createDiv('').parent(guiHolder).class('guiLabel')
+
+	sliderAmp = createSlider(0, 8, 6).parent(guiHolder).class('guiSlider')
+
+	// myDropdown = createSelect('').parent(guiHolder)
+	// myDropdown.option('cyl')
+	// myDropdown.option('donut')
+
+	createButton('EXPORT').parent(guiHolder).class('guiButton').mouseClicked(function() {
+		save('WormHoleWrangler.png') // export p5 as png
+		H.save() // export hydra as png
+	})
+
+	createElement('style', `
+        .guiHolder{
+            position:fixed;
+            right:20px;
+            top:20px;
+            width:155px;
+            height:auto;
+            background:grey;
+            font-family:monospace;
+            padding:5px;
+            outline:none;
+        }
+        .guiBar{
+            background:gray;
+            color:white;
+            text-align:left;
+            padding:5px;
+        }
+        .guiLabel{
+            color:#fff;
+            padding:5px;
+        }
+        .guiSlider{
+            width:95%;
+        }
+        .guiButton{
+            clear:both;
+        }
+    `)
+	H.z(-1)
+}
+
+function draw() {
+	clear()
+	updateAudio()
+	if(spaceDonut.checked()) {
+		for(let i = 0; i < 20; i++) {
+			// orbitControl(2)
+			translate(0, 0, -100 + (ampEase * sliderAmp.value() + i / 20) % 600)
+			torus(sliderAmp.value() * 80, 100, 30)
+			rotateZ(radians(frameCount * sliderSpeed.value()) / 80)
+			texture(H.get())
+		}
+	} else {
+		rotateX(90)
+		rotateY(frameCount * 0.3)
+		texture(H.get())
+		cylinder(100, sliderSpeed.value(), sliderSides.value(), 0, 0, 0)
+	}
+}
+
+/* AUDIO INIT */
+let mic, fftRaw, fft = [],
+	waveform = [],
+	amp = 0.0,
+	ampStereo = {
+		l: 0.0,
+		r: 0.0
+	},
+	ampEase = 0.0,
+	numBins = 512,
+	bands = 12
+
+function setupAudio() {
+	userStartAudio()
+	mic = new p5.AudioIn()
+	mic.start()
+	fftRaw = new p5.FFT(0.75, numBins)
+	fftRaw.setInput(mic)
+}
+
+function updateAudio() {
+	fftRaw.analyze()
+	amp = mic.getLevel() * 1000 // average mixed amplitude
+	ampStereo.l = mic.amplitude.getLevel(0) * 500 // average left amplitude
+	ampStereo.r = mic.amplitude.getLevel(1) * 500 // average right amplitude
+	ampEase = ease(amp, ampEase, 0.05) // smooth 'amp'
+	waveform = fftRaw.waveform() // array (-1, 1)
+	fft = fftRaw.logAverages(fftRaw.getOctaveBands(bands)) // array (0, 255)
+}
+</script>
+
+</body>
+</html>

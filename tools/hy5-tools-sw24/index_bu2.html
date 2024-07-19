@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>sw24 - hy5-tools_001</title>
+	<meta charset="utf-8">
+	<!-- Compiled w/ P5LIVE, http://github.com/ffd8/p5live -->
+	<style type="text/css">
+		body{
+			margin:0;
+			overflow:hidden;
+		}
+		canvas{
+			position:fixed;
+			top:0;
+			left:0;
+			z-index:-1;
+			width:100vw;
+			height:100vh;
+			margin:0;
+		}
+	</style>
+	<script type="text/javascript">
+		// eco-mode = only render if window focused
+		window.onblur = function () {
+			noLoop();
+		};
+		window.onfocus = function () {
+			loop();
+		};
+	</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/hydra-synth"></script>
+</head>
+<body style="background: rgb(0, 0, 0);">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js"></script>
+
+<script type="text/javascript">
+//sw24 - hy5-tools_001
+
+/* CUSTOM FUNCTIONS FOR P5LIVE */
+// keep fullscreen if window resized
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+}
+
+// custom ease function
+function ease(iVal, oVal, eVal){
+	return oVal += (iVal - oVal) * eVal;
+}
+
+// processing compatibility
+function println(msg){
+	print(msg);
+}
+
+
+let libs = ['https://unpkg.com/hydra-synth', 'includes/libs/hydra-synth.js', 'https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js', 'includes/libs/hy5.js']
+
+let font
+let txt = {
+	text: 'HY5-TOOLS',
+	fc:0,
+	speed:1,
+	fill: 255,
+	stroke: 0,
+	hydra: 'voronoi',
+	hydraVal: 15,
+	hydraAmt: .2,
+	luma:0,
+}
+
+let bg = {
+	fc:0,
+	speed:1,
+	hydra:'osc',
+	hydraVal: 15,
+	hydraAmt: .1,
+	strokeSpeed:1,
+	clear:false,
+}
+
+function preload() {
+	font = loadFont("RobotoMono-Regular.otf")
+}
+
+// sandbox
+H.audio(false)
+
+updateHydra()
+
+// H.pd(.5)
+P5.toggle()
+s0.initP5()
+// sandbox
+
+
+
+function setup() {
+	createCanvas(windowWidth, windowHeight)
+	layerText = createGraphics(width, height)
+	layerBG = createGraphics(width, height)
+	s1.initP5(layerText)
+	s2.initP5(layerBG)
+	textFont(font)
+
+	initGUI()
+}
+
+function draw() {
+	// clear()
+	txt.fc += txt.speed
+	bg.fc += bg.speed
+	
+	layerText.reset()
+	if(!cbTrace.checked()){
+		layerText.clear()
+	}
+	// layerText.background(0, 50)
+	layerText.angleMode(DEGREES)
+	layerText.fill(txt.fill)
+	layerText.textAlign(CENTER, CENTER)
+	layerText.textSize(width / txt.text.length * sSize.value())
+	layerText.translate(width / 2, height / 2)
+	layerText.rotate(txt.fc)
+	layerText.stroke(txt.stroke)
+	layerText.text(txt.text, 0, 0)
+
+	layerBG.reset()
+	layerBG.background(0, 2)
+	layerBG.translate(width / 2, height / 2)
+	layerBG.angleMode(DEGREES)
+	// layerBG.stroke(bg.fc * 10 % 255)
+	layerBG.stroke(frameCount/3 % 255)
+	layerBG.strokeWeight(1)
+	// layerBG.rotate(bg.fc/2)
+	layerBG.rotate(frameCount/2)
+	layerBG.line(-layerBG.width / 2, 0, layerBG.width / 2, 0)
+
+}
+
+function updateHydra(){
+	myHydra = `src(s2)
+	.modulate(${bg.hydra}(${bg.hydraVal}), ${bg.hydraAmt})
+	.layer(src(s1)
+		.luma(${txt.luma})
+		.modulateScale(${txt.hydra}(${txt.hydraVal}), ${txt.hydraAmt})
+	)
+.out()`
+	eval(myHydra)
+}
+
+function initGUI() {
+	guiPanel = createDiv('').class('guiPanel')
+	createDiv('HY5-TOOLS-SW24').parent(guiPanel).class('guiBar').draggable(guiPanel)
+
+	guiHolder = createDiv('').class('guiHolder').parent(guiPanel)
+
+	createDiv('TEXT').parent(guiHolder).class('guiHeader')
+
+	createDiv('Input').parent(guiHolder).class('guiLabel')
+	createInput(txt.text).parent(guiHolder).class('guiTXT').input(function() {
+		txt.text = this.value()
+		layerText.clear()
+	})
+	
+
+	createDiv('Size').parent(guiHolder).class('guiLabel')
+	sSize = createSlider(0, 2, .8, .001).parent(guiHolder).class('guiSlider')
+
+	createDiv('Color').parent(guiHolder).class('guiLabel')
+	tColor = createDiv('').parent(guiHolder)
+	createColorPicker('#fff').parent(tColor).input(function() {
+		txt.fill = this.color()
+	})
+	createColorPicker('#000').parent(tColor).input(function() {
+		txt.stroke = this.color()
+	})
+	
+	createDiv('Trace').parent(guiHolder).class('guiLabel')
+	cbTrace = createCheckbox('', true).parent(guiHolder).style('float', 'left')
+	createButton('CLEAR').parent(guiHolder).class('guiButton').mouseClicked(function(){
+		layerText.clear()
+	})
+
+	createDiv('Distortion').parent(guiHolder).class('guiLabel')
+	txtDropdown = createSelect('').parent(guiHolder).input(function() {
+		txt.hydra = this.value()
+		updateHydra()
+	})
+	txtDropdown.option('osc')
+	txtDropdown.option('noise', 'noize')
+	txtDropdown.option('voronoi')
+	
+	createSlider(.01, 100, .5, .001).parent(guiHolder).class('guiSliderMini').input(function(){
+		txt.hydraVal = this.value()
+		updateHydra()
+	})
+	createSlider(0, 1, .5, .001).parent(guiHolder).class('guiSliderMini').input(function(){
+		txt.hydraAmt = this.value()
+		updateHydra()
+	})
+	
+
+
+	createDiv('BACKGROUND').parent(guiHolder).class('guiHeader')
+
+	createDiv('Motion').parent(guiHolder).class('guiLabel')
+	createSlider(0.01, 5, bg.speed, .01).parent(guiHolder).input(function(){
+		bg.speed = this.value()
+	})
+	// strokePulse = createSlider(0, 25, 4, .01).parent(guiHolder).input(function(){
+		
+	// })
+	// strokePulse = createSlider()
+
+	createDiv('Distortion').parent(guiHolder).class('guiLabel')
+	txtDropdown = createSelect('').parent(guiHolder).input(function() {
+		bg.hydra = this.value()
+		updateHydra()
+	})
+	txtDropdown.option('osc')
+	txtDropdown.option('noise', 'noize')
+	txtDropdown.option('voronoi')
+	
+	createSlider(.01, 100, .5, .001).parent(guiHolder).class('guiSliderMini').input(function(){
+		bg.hydraVal = this.value()
+		updateHydra()
+	})
+	createSlider(0, 1, .5, .001).parent(guiHolder).class('guiSliderMini').input(function(){
+		bg.hydraAmt = this.value()
+		updateHydra()
+	})
+
+
+	createDiv('HYDRA').parent(guiHolder).class('guiHeader')
+	createDiv('PixelDensity').parent(guiHolder).class('guiLabel')
+	createSlider(.01, 2, 1, .01).parent(guiHolder).input(function(){
+		H.pd(this.value())
+	})
+	
+	createDiv('EXPORT').parent(guiHolder).class('guiHeader')
+	createButton('PNG').parent(guiHolder).class('guiButton').mouseClicked(function() {
+		H.save() // export hydra as png
+		// save('amaaaazing.png') // export p5 as png
+		// saveGif('amaaaazing.gif', 1) // export gif: name, xSeconds
+	})
+
+	createButton('GIF').parent(guiHolder).class('guiButton').mouseClicked(function() {
+		saveGif('amaaaazing.gif', 5) // export gif: name, xSeconds
+	})
+
+
+	createElement('style', `
+		.guiPanel{
+			
+		}
+		.guiPanel{
+			position:fixed;
+			right:15px;
+			top:15px;
+			width:250px;
+			// height:300px;
+			background:rgba(0, 0, 0, .8);
+			font-family:monospace;
+			border-radius:15px;
+			color:#fff;
+			// overflow:hidden;
+		}
+		.guiHolder{
+			padding:10px;
+		}
+		.guiHolder *{
+			outline:none !important;
+		}
+		.guiBar{
+			font-weight:bold;
+			font-size:1.2em;
+			// background:blue;
+			color:white;
+			text-align:center;
+			border-radius:15px 15px 0 0;
+			padding:5px;
+			background:#fff;
+			color:#000;
+		}
+		.guiHeader{
+			margin:25px 0 10px 0;
+			font-weight:bold;
+			font-size:1.2em;
+			border-top:3px solid #fff;
+			border-bottom:3px solid #fff;
+		}
+		.guiHeader:first-child{
+			margin-top:0;
+		}
+		.guiTXT{
+			border:none;
+			padding:4px;
+			border-radius:5px;
+		}
+		.guiLabel{
+			color:#fff;
+			// padding:5px;
+			margin:10px 0 5px 0;
+		}
+		.guiSlider{
+			// width:95%;
+		}
+		.guiSliderMini{
+			width:30%;
+		}
+		.guiButton{
+			border:none;
+			padding:4px;
+			// height:20px;
+			border-radius:5px;
+			margin-left:5px;
+		}
+	`)
+}
+</script>
+
+</body>
+</html>
