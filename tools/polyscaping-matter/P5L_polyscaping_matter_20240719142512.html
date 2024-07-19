@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>polyscaping_matter_001</title>
+	<title>polyscaping_matter</title>
 	<meta charset="utf-8">
 	<!-- Compiled w/ P5LIVE, http://github.com/ffd8/p5live -->
 	<style type="text/css">
@@ -37,7 +37,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js"></script>
 <script type="text/javascript" src="includes/libs/hy5.js"></script>
 <script type="text/javascript">
-//polyscaping_matter_001
+//polyscaping_matter
 
 /* CUSTOM FUNCTIONS FOR P5LIVE */
 // keep fullscreen if window resized
@@ -118,7 +118,7 @@ osc(30, .01)
 render()
 
 P5.z(0)
-H.toggle(0)
+H.toggle(1)
 P5.toggle(1)
 
 function setup() {
@@ -129,8 +129,8 @@ function setup() {
 
 	for(let j = 0; j < lcj; j++) {
 		for(let i = 0; i < lci; i++) {
-			let mapSW = map(j, 0, lcj - 1, -width, width)
-			let mapSH = map(i, 0, lci - 1, -width/2, width * .6)
+			let mapSW = map(j, 0, lcj - 1, -width / 2, width * .6)
+			let mapSH = map(i, 0, lci - 1, -width / 2, width * .6)
 			myEllys.push(new Elly(mapSH, mapSW, h1))
 		}
 	}
@@ -147,19 +147,18 @@ function draw() {
 
 	} else {
 		background(0)
-		push()
 		H.render() //h0, h1, h2, h3
+		push()
 		rotateY(sliderCYB.value())
 		noStroke()
 		texture(h0)
-		sphere(width * 12,3,3)
+		sphere(width * 2)
 		pop()
 	}
 
-	translate(0, 0, sliderZoom.value())
 	orbitControl(0, 0, 3)
 	rotateY(sliderCY.value())
-	//lights()
+	lights()
 
 	let meC = 0
 	for(let me of myEllys) {
@@ -229,7 +228,7 @@ class Elly {
 			noFill()
 			stroke(this.fill)
 			strokeWeight(3)
-			ellipsoid(this.Sx + 10, this.Sy + 10, this.Sz + 10, this.Svx, this.Svy)
+			ellipsoid(this.Sx + 5, this.Sy + 5, this.Sz + 5, this.Svx, this.Svy)
 		}
 		pop()
 	}
@@ -241,13 +240,12 @@ function initGUI() {
 
 	guiBoard = createDiv("").class("guiboard")
 
-	createDiv("Polyscaping Matter").parent(guiBoard).class("guiBar").draggable(guiBoard)
+	createDiv("Polyscaping Matter").class("guiBar").draggable(guiBoard)
 
-	createElement("br").parent(guiBoard)
-
+	//createElement("br").parent(guiBoard)
+	createDiv("use MouseScroll to zoom").parent(guiBoard).class("guiLabel")
+	createDiv("---------------------").parent(guiBoard).class("guiLabel")
 	createDiv("camera control").parent(guiBoard).class("guiLabel")
-	sliderZoom = createSlider(-width*2, width/2, -width/2)
-		.parent(guiBoard).class("guiSlider")
 	sliderCY = createSlider(0, 360, 0)
 		.parent(guiBoard).class("guiSlider")
 	createDiv("Background Control").parent(guiBoard).class("guiLabel")
@@ -322,12 +320,17 @@ function initGUI() {
             outline:none;
         }
         .guiBar{
-            background:white;
-            color:black;
+        	position: relative;
+            background:none;
+            color:white;
             text-align:center;
-            width:100%;
-            height:4%;
-            font-size: 1em;
+            display: flex;
+            justify-content: center;
+            height:2%;
+            width:20%;
+            padding: 4%;
+            font-size: 1.6em;
+            font-family: helvetica;
         }
         .guiLabel{
         	text-align:center;

@@ -232,7 +232,9 @@
         line-height: 14px;
       }
     </style>
-
+  </head>
+  <body>
+    <main></main>
     <script
       type="text/javascript"
       src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"
@@ -242,21 +244,16 @@
       src="https://cdn.jsdelivr.net/gh/processing/p5.js-sound/lib/p5.sound.min.js"
     ></script>
     <script type="text/javascript" src="https://unpkg.com/hydra-synth"></script>
-     <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"
-    ></script>
-  </head>
-  <body>
-    <main></main>
-    
     <script
       type="text/javascript"
       src="https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js"
     ></script>
-   
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"
+    ></script>
     <script type="text/javascript">
-      var credits = { 
+      let credits = { 
         names : [ 
           'michael.perret' 
         ] 
@@ -328,7 +325,7 @@
             this.py = this.y;
           }
 
-          var collision = false;
+          let collision = false;
           if (this.x + this.size / 2 >= canvas.width) {
             //condition: crossing right side
             this.vx = -this.vx * damping;
@@ -420,32 +417,32 @@
       }
     </script>
     <script type="text/javascript">
-      var layers = [];
-      var selectedLayer = 0;
-      var currentLayer;
-      var orbitControlActive = false;
-      var layerHolder;
-      var initialSize = 10;
-      var initialColor = [60, 179, 113];
-      var initialLifeTime = 10;
-      var initialGravity = 0;
-      var initialForm = Forms.line;
-      var audioReactive = false;
+      let layers = [];
+      let selectedLayer = 0;
+      let currentLayer;
+      let orbitControlActive = false;
+      let layerHolder;
+      let initialSize = 10;
+      let initialColor = [60, 179, 113];
+      let initialLifeTime = 10;
+      let initialGravity = 0;
+      let initialForm = Forms.line;
+      let audioReactive = false;
 
-      var layerEffects = [
+      let layerEffects = [
         `src(s0)`,
         `src(s1).modulate(voronoi(),0.1)`,
         `src(s2).modulate(noize(),0.01)`,
         `src(s3).diff(src(o2),1)`,
       ];
 
-      var numberOfBalls = 1;
+      let numberOfBalls = 1;
       // add layers for each ball
 
-      var balls = [];
-      var disturbance = false;
-      var disturbanceColor = [0, 0, 0];
-      var timeoutFunction;
+      let balls = [];
+      let disturbance = false;
+      let disturbanceColor = [0, 0, 0];
+      let timeoutFunction;
 
       function updateHydra() {
         try {
@@ -489,10 +486,10 @@
       // sandbox - end
 
       //user editable variables, affect ball
-      var damping = 0.9, //default is 0.9
+      let damping = 0.9, //default is 0.9
         friction = 0.8; //default is 0.8
 
-      var drawPath = false;
+      let drawPath = false;
 
       function setup() {
         angleMode(DEGREES);
@@ -503,7 +500,7 @@
         imageMode(CORNER);
         reset();
         setupAudio();
-        background(255)
+        background(255);
       }
 
       function draw() {
@@ -612,9 +609,9 @@
       }
 
       function mousePressed() {
-        var ghpos = guiHolder.position();
-        var ghsize = guiHolder.size();
-        var border = 25;
+        let ghpos = guiHolder.position();
+        let ghsize = guiHolder.size();
+        let border = 25;
         if (
           !(
             mouseX <= ghpos.x - border ||
@@ -648,9 +645,9 @@
       }
 
       function mouseDragged() {
-        var ghpos = guiHolder.position();
-        var ghsize = guiHolder.size();
-        var border = 25;
+        let ghpos = guiHolder.position();
+        let ghsize = guiHolder.size();
+        let border = 25;
         if (
           !(
             mouseX <= ghpos.x - border ||
@@ -699,6 +696,8 @@
         select.option(Forms.square);
         select.option(Forms.line);
 
+        select.selected(Forms.line);
+
         /*
   createDiv("Size").parent(guiHolder).class("label")
 
@@ -711,7 +710,7 @@
   */
 
         createDiv("").id("defaultPicker").parent(guiHolder);
-        var defaultPicker = new iro.ColorPicker("#defaultPicker", {
+        let defaultPicker = new iro.ColorPicker("#defaultPicker", {
           color: "#3cb371",
           width: 110,
           borderWidth: 1,
@@ -880,6 +879,7 @@
       function ease(iVal, oVal, eVal) {
         return (oVal += (iVal - oVal) * eVal);
       }
+
     </script>
   </body>
 </html>
