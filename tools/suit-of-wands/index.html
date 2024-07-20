@@ -75,7 +75,21 @@ let moveNummber
 let libs = ['https://unpkg.com/hydra-synth', 'includes/libs/hydra-synth.js', 'https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js', 'includes/libs/hy5.js']
 
 // sandbox
+//layer1 background
+osc(0, .9, 10).add(gradient(.1)).out(o0)
+//diamond bars
+osc(() => sliderHydralayer4size.value(), .01, () => colorNummber).rotate(3, () => moveNummber).kaleid(4).luma(.2, 0.1).repeat().out(o2)
+//vertical bars
+osc(() => sliderHydralayer3size.value(), () => moveNummberSmall, () => colorNummber).layer(osc(() => sliderHydralayer3size.value(), () => moveNummberSmall, () => colorNummber).rotate(.1).luma()).luma().out(o3)
+//black noise
+noize()
+	.modulate(noize(10, 0.1))
+	.out(o1)
 
+
+render()
+H.toggle(0) //make hydra (un)visible
+P5.toggle(1) //make p5 (un)visible
 
 // s0.initP5()
 // sandbox
@@ -127,31 +141,6 @@ function setup() {
 	createDiv('-------------------------').parent(guiHolder).class('dividor')
 	checkboxColoring = createCheckbox('🌈', false).parent(guiHolder).class('regular-checkbox')
 	checkboxMove = createCheckbox('🪩', false).parent(guiHolder).class('regular-checkbox')
-
-
-	setTimeout(()=>{
-		eval(`
-//layer1 background
-osc(0, .9, 10).add(gradient(.1)).out(o0)
-//diamond bars
-osc(() => sliderHydralayer4size.value(), .01, () => colorNummber).rotate(3, () => moveNummber).kaleid(4).luma(.2, 0.1).repeat().out(o2)
-//vertical bars
-osc(() => sliderHydralayer3size.value(), () => moveNummberSmall, () => colorNummber).layer(osc(() => sliderHydralayer3size.value(), () => moveNummberSmall, () => colorNummber).rotate(.1).luma()).luma().out(o3)
-//black noise
-noize()
-	.modulate(noize(10, 0.1))
-	.out(o1)
-
-
-render()
-H.toggle(0) //make hydra (un)visible
-P5.toggle(1) //make p5 (un)visible
-
-
-			`)
-
-	}, 100)
-
 
 	createElement('style', ` 
   *{ 

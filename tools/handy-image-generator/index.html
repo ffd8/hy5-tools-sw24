@@ -32,6 +32,8 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/processing/p5.js-sound/lib/p5.sound.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/ml5@1/dist/ml5.js"></script>
 <script type="text/javascript" src="https://unpkg.com/hydra-synth"></script>
+<script type="text/javascript" src="includes/libs/hydra-synth.js"></script>
+<script type="text/javascript" src="includes/libs/hy5.js"></script>
 </head>
 <body style="background: rgb(0, 0, 0);">
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js"></script>
@@ -184,6 +186,9 @@ function setup() {
 	createDiv('N scale').parent(guiHolder).class('guiLabel')
 	sliderScale = createSlider(.1, 1000, 40, .1).parent(guiHolder).class('guiSlider')
 
+	createDiv('Size').parent(guiHolder).class('guiLabel')
+	sliderSize = createSlider(10, 500, 200, 10).parent(guiHolder).class('guiSlider')
+
 	createDiv('force').parent(guiHolder).class('guiLabel')
 	sliderForce = createSlider(.01, 100, .2, .01).parent(guiHolder).class('guiSlider')
 
@@ -278,7 +283,7 @@ function setup() {
             right:15px;
             top:15px;
             width:150px;
-            height:480px;
+            height:530px;
             background:black;
             font-family:monospace;
             padding:5px;
@@ -335,7 +340,7 @@ function draw() {
 
 			fill(255);
 			noStroke();
-			circle(keypoint.x * videoScale, keypoint.y * videoScale, 100);
+			circle(keypoint.x * videoScale, keypoint.y * videoScale, sliderSize.value());
 		}
 
 

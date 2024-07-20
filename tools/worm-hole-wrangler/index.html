@@ -31,8 +31,6 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/processing/p5.js-sound/lib/p5.sound.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/hydra-synth"></script>
-<script type="text/javascript" src="includes/libs/hydra-synth.js"></script>
-<script type="text/javascript" src="includes/libs/hy5.js"></script>
 </head>
 <body style="background: rgb(0, 0, 0);">
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ffd8/hy5@main/hy5.js"></script>
@@ -80,7 +78,6 @@ osc(() => sliderOsc.value(), .05, () => sliderColor.value()) // create slider 1s
 		.modulate(src(o0).scale(() => sliderScale.value())) // create slider for scale 0 - 30
 	)
 	.out(o0)
-
 // sandbox - end
 
 
@@ -96,7 +93,7 @@ function setup() {
 	sliderSpeed = createSlider(1500, 7000, 3000).parent(guiHolder).class('guiSlider') // min, max, default, stepSize 
 	sliderOsc = createSlider(5, 20, 10).parent(guiHolder).class('guiSlider')
 	sliderKaleid = createSlider(1, 6, 3).parent(guiHolder).class('guiSlider')
-	// sliderRepeat = createSlider(3, 40, 20).parent(guiHolder).class('guiSlider')
+	sliderRepeat = createSlider(3, 40, 20).parent(guiHolder).class('guiSlider')
 	sliderRotate = createSlider(-3, 3, .2).parent(guiHolder).class('guiSlider')
 	sliderScale = createSlider(0, 30, 4).parent(guiHolder).class('guiSlider')
 	sliderSides = createSlider(2, 20, 10).parent(guiHolder).class('guiSlider')
